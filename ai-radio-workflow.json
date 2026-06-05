@@ -1,0 +1,99 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [0, 0],
+      "id": "schedule-trigger-1",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "feedUrl": "http://feeds.bbci.co.uk/news/rss.xml"
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "id": "rss-feed-read-1",
+      "name": "RSS Feed Read"
+    },
+    {
+      "parameters": {
+        "prompt": "You are a professional radio host. Below are today's top news headlines. Write a short, engaging radio segment script (30-45 seconds when read aloud). Sound natural, warm, and conversational.\n\nHeadline: {{ $json.title }}\nSummary: {{ $json.description }}\n\nStart with \"Good morning, you're tuned in...\" and keep it under 100 words.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [480, 0],
+      "id": "basic-llm-chain-1",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "mistral:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
+      "position": [480, 200],
+      "id": "ollama-model-1",
+      "name": "Ollama Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "gbFJ1GIpabw6NWk3",
+          "name": "Ollama account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "RSS Feed Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Feed Read": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1a725bb5835480a47ea4ec2e9f3d66b930f4728324ae8b5a803f729fc5798346"
+  }
+}
